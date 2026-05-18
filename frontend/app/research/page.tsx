@@ -122,7 +122,8 @@ function ResearchConsole() {
 
             <button
               type="submit"
-              className="w-full rounded-md bg-accent-green py-2 text-primary transition hover:bg-accent-green/80"
+              className="w-full py-2 rounded mt-2"
+              style={{ backgroundColor: '#00ff88', color: '#000000', fontWeight: 'bold' }}
             >
               Start Research
             </button>
