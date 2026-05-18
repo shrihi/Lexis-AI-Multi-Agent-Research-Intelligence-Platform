@@ -9,7 +9,7 @@ router = APIRouter()
 _session_store: Dict[str, Tuple[str, int]] = {}
 
 # Orchestrator instance (shared)
-from ..agents.orchestrator import Orchestrator
+from agents.orchestrator import Orchestrator
 _orchestrator = Orchestrator()
 
 class ResearchRequest(BaseModel):
