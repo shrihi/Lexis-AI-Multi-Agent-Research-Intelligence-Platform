@@ -12,7 +12,10 @@ app = FastAPI()
 # CORS setup for development and Netlify
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "https://*.netlify.app"],  # Development and Netlify
+    allow_origins=[
+    "http://localhost:3000",
+    "https://lexisaimultiagentresearchplatform.netlify.app",
+    ],  # Development and Netlify
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
