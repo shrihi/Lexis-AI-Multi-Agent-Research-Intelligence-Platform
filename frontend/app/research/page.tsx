@@ -121,9 +121,10 @@ function ResearchConsole() {
             </div>
 
             <button
+            
               type="submit"
-              className="w-full py-2 rounded mt-2"
-              style={{ backgroundColor: '#00ff88', color: '#000000', fontWeight: 'bold' }}
+              className="w-full py-2 rounded mt-2 font-medium"
+              style={{ backgroundColor: '#00ff88', color: '#0a0a0a', fontWeight: '600' }}
             >
               Start Research
             </button>
