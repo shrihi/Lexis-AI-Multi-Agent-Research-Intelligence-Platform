@@ -1,72 +1,84 @@
-Render deployment is still failing because backend modules use relative imports like:
+The Render deployment is still failing because there are remaining relative imports inside the backend codebase.
 
+Current error:
+
+```python id="9xcn5s"
 from ..agents.orchestrator import Orchestrator
+```
 
 Error:
-ImportError: attempted relative import beyond top-level package
 
-The backend is deployed on Render with:
+```text id="3jj1tb"
+ImportError: attempted relative import beyond top-level package
+```
+
+The backend is deployed with:
 
 * Root Directory = backend
 * Start command = uvicorn main:app
 
-So all backend imports must use absolute local imports instead of relative imports.
+Therefore ALL backend imports must use absolute local imports and NO relative imports.
 
-Please do ALL of the following:
+Please do ALL of the following carefully:
 
-1. Search the entire backend/ directory for:
+1. Search the ENTIRE `backend/` directory for:
 
-* from ..
-* from .
-* import ..
+* `from ..`
+* `from .`
+* `import ..`
 
-2. Replace all relative imports with absolute local imports.
+2. Replace ALL relative imports with absolute local imports.
 
 Examples:
 
 Change:
 
-```python id="ywjlwm"
+```python id="f2ktm2"
 from ..agents.orchestrator import Orchestrator
 ```
 
 To:
 
-```python id="ljlwm0"
+```python id="a9w5ra"
 from agents.orchestrator import Orchestrator
 ```
 
 Change:
 
-```python id="4jlwm8"
+```python id="3lkjlwm"
 from .memory import MemoryService
 ```
 
 To:
 
-```python id="5jlwm6"
+```python id="g5w5zv"
 from services.memory import MemoryService
 ```
 
 3. Ensure imports remain valid across:
 
-* agents/
 * routers/
+* agents/
 * services/
 * models/
 * utils/
 
-4. Ensure compatibility with:
+4. Verify there are NO remaining relative imports anywhere in backend/.
 
-* Render deployment
-* Root Directory = backend
-* uvicorn main:app
+5. Run a validation/compile check if possible to ensure imports work correctly.
 
-5. Run a quick validation/compile check if possible.
-
-6. Stage all changes.
+6. Stage ALL modified files.
 
 7. Create git commit:
-   "Fix relative imports for Render deployment"
+
+```text id="0l0j1i"
+Fix all remaining relative imports for Render
+```
+
+8. Push the changes to GitHub automatically using:
+
+```bash id="3uwjlwm"
+git push
+```
 
 Do NOT modify frontend code.

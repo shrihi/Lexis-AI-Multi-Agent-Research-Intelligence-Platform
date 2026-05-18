@@ -8,15 +8,15 @@ from fastapi import Request
 from sse_starlette.sse import EventSourceResponse
 
 # Import other agents and services
-from .planner import Planner
-from .searcher import Searcher
-from .synthesizer import Synthesizer
-from .critic import Critic
-from .reporter import Reporter
-from ..services.openrouter import OpenRouterService
-from ..services.memory import MemoryService
-from ..services.embeddings import EmbeddingService
-from ..models.research import ResearchReport
+from planner import Planner
+from searcher import Searcher
+from synthesizer import Synthesizer
+from critic import Critic
+from reporter import Reporter
+from services.openrouter import OpenRouterService
+from services.memory import MemoryService
+from services.embeddings import EmbeddingService
+from models.research import ResearchReport
 
 class Orchestrator:
     def __init__(self):

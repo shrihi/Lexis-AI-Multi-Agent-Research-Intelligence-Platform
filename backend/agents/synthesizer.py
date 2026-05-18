@@ -5,8 +5,8 @@ Returns a JSON array of Claim objects.
 """
 import json
 from typing import List
-from ..models.research import Claim, Source
-from ..services.openrouter import OpenRouterService
+from models.research import Claim, Source
+from services.openrouter import OpenRouterService
 
 
 class Synthesizer:

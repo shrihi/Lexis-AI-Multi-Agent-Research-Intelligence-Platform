@@ -5,7 +5,7 @@ Calls Tavily API for each sub-question and returns Source objects.
 import os
 import aiohttp
 from typing import List
-from ..models.research import Source
+from models.research import Source
 
 
 TAVILY_API_URL = "https://api.tavily.com"

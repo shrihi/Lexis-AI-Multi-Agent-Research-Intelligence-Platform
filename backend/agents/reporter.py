@@ -4,8 +4,8 @@ Uses anthropic/claude-3-5-sonnet via OpenRouter to generate a polished markdown 
 """
 import json
 from typing import List
-from ..models.research import Claim, Source, Contradiction
-from ..services.openrouter import OpenRouterService
+from models.research import Claim, Source, Contradiction
+from services.openrouter import OpenRouterService
 
 
 class Reporter:

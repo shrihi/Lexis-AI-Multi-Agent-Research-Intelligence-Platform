@@ -5,8 +5,8 @@ Returns a JSON array of Contradiction objects.
 """
 import json
 from typing import List
-from ..models.research import Claim, Contradiction
-from ..services.openrouter import OpenRouterService
+from models.research import Claim, Contradiction
+from services.openrouter import OpenRouterService
 
 
 class Critic:

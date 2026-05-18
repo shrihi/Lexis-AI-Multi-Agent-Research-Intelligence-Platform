@@ -7,7 +7,7 @@ import json
 import asyncio
 from typing import List
 import openai
-from ..services.openrouter import OpenRouterService
+from services.openrouter import OpenRouterService
 
 
 class Planner:
