@@ -1,83 +1,72 @@
-The Render deployment is failing with:
+Render deployment is still failing because backend modules use relative imports like:
 
-ModuleNotFoundError: No module named 'backend'
+from ..agents.orchestrator import Orchestrator
 
-Reason:
-Render is using:
+Error:
+ImportError: attempted relative import beyond top-level package
+
+The backend is deployed on Render with:
 
 * Root Directory = backend
+* Start command = uvicorn main:app
 
-So Python is already running INSIDE the backend folder.
+So all backend imports must use absolute local imports instead of relative imports.
 
-However, the code still contains imports like:
+Please do ALL of the following:
 
-from backend.routers import ...
-from backend.services import ...
-from backend.agents import ...
+1. Search the entire backend/ directory for:
 
-These imports work locally from the project root but fail on Render because there is no parent `backend` package in the runtime path.
+* from ..
+* from .
+* import ..
 
-Please do ALL of the following carefully:
-
-1. Search the entire `backend/` directory for imports starting with:
-   `from backend.`
-   and
-   `import backend.`
-
-2. Convert them to local package imports.
+2. Replace all relative imports with absolute local imports.
 
 Examples:
 
 Change:
 
-```python
-from backend.routers import research, memory, health
+```python id="ywjlwm"
+from ..agents.orchestrator import Orchestrator
 ```
 
 To:
 
-```python
-from routers import research, memory, health
+```python id="ljlwm0"
+from agents.orchestrator import Orchestrator
 ```
 
 Change:
 
-```python
-from backend.services.memory import MemoryService
+```python id="4jlwm8"
+from .memory import MemoryService
 ```
 
 To:
 
-```python
+```python id="5jlwm6"
 from services.memory import MemoryService
 ```
 
-3. Ensure all imports remain valid and consistent across:
+3. Ensure imports remain valid across:
 
 * agents/
 * routers/
 * services/
-* utils/
 * models/
-* main.py
+* utils/
 
-4. Verify there are no remaining `backend.` import prefixes anywhere in the backend codebase.
-
-5. Ensure the project structure remains compatible with:
+4. Ensure compatibility with:
 
 * Render deployment
-* uvicorn main:app
 * Root Directory = backend
+* uvicorn main:app
 
-6. After modifications:
+5. Run a quick validation/compile check if possible.
 
-* run a quick import validation check if possible
-* ensure there are no circular import issues
+6. Stage all changes.
 
-7. Finally:
-
-* stage the changes
-* create a git commit with message:
-  "Fix Render backend import paths"
+7. Create git commit:
+   "Fix relative imports for Render deployment"
 
 Do NOT modify frontend code.
