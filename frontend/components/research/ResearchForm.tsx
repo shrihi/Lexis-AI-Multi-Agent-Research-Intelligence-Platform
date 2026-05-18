@@ -40,7 +40,7 @@ export default function ResearchForm() {
           className="w-full rounded-md border border-border bg-surface px-3 py-2 text-text focus:outline-none focus:border-accent-blue"
         />
       </div>
-      <button type="submit" className="w-full bg-accent-green text-primary hover:bg-accent-green/80 px-4 py-2 rounded-md">
+      <button type="submit" className="w-full bg-accent-green text-primary hover:bg-accent-green/80 px-4 py-2 rounded-md mt-4">
         Start Research
       </button>
     </form>
