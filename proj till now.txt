@@ -1,36 +1,83 @@
-  3. Root layout
-    - Updated app/layout.tsx to import the global CSS, include the Navbar, wrap the app in the QueryProvider, and (initially) load Geist fonts via next/font/google.
-    - Later removed the invalid Geist font imports and references, falling back to system defaults, and cleaned up the <html> class handling.
-  4. Navbar
-    - Added components/layout/Navbar.tsx with the required logo and navigation links styled using the custom colors.
-  5. Providers
-    - Implemented app/providers.tsx that sets up React‑Query (QueryClientProvider) and the Sonner toast container.
-  6. Landing page
-    - Re‑implemented app/page.tsx:
-        - Hero section with animated gradient blobs, tagline, sub‑text and a terminal‑style search bar that navigates to /research?q=….
-      - “How it works” step‑by‑step grid.
-      - Feature‑grid (Model Routing, Persistent Memory, Contradiction Detection, Observable Traces).
-      - All sections animate in on scroll using Framer Motion.
-  7. Research page
-    - Created full‑featured app/research/page.tsx:
-        - Inline research form (question + depth) that POSTs to /api/research/start.
-      - Stores the returned session_id in the Zustand store (useSessionStore).
-      - Renders AgentThoughtStream (SSE feed) for the live terminal‑style thoughts.
-      - Polls /api/research/report/:id until the status becomes complete or error and then shows a “View Report →” button that routes to the report page.
-  8. AgentThoughtStream
-    - Added Framer Motion cursor animation inside the stream.
-    - Connected to the SSE endpoint at ${NEXT_PUBLIC_API_URL}/api/research/stream/${sessionId}.
-  9. Zustand store
-    - Implemented lib/store.ts with activeSessionId and a setter.
-  10. Report viewer
-    - Added a placeholder components/research/ReportViewer.tsx (client‑side) that displays a loading state and mock sections for the report, sources, model usage,
-  confidence chart, and contradictions.
-  11. Memory page
-    - Marked app/memory/page.tsx as a client component ('use client') to allow useState usage.
-  12. Project cleanup
-    - Deleted the stale frontend/pages/index.tsx that conflicted with the App Router.
-    - Fixed font‑import errors by removing invalid Geist font usage.
-    - Added missing 'use client' directives where needed.
-    - Updated various imports and class names to match the new design system.
+The Render deployment is failing with:
 
-  All of the above steps now allow the project to compile successfully with npm run build. Feel free to capture this summary as a memory entry for the next session.
+ModuleNotFoundError: No module named 'backend'
+
+Reason:
+Render is using:
+
+* Root Directory = backend
+
+So Python is already running INSIDE the backend folder.
+
+However, the code still contains imports like:
+
+from backend.routers import ...
+from backend.services import ...
+from backend.agents import ...
+
+These imports work locally from the project root but fail on Render because there is no parent `backend` package in the runtime path.
+
+Please do ALL of the following carefully:
+
+1. Search the entire `backend/` directory for imports starting with:
+   `from backend.`
+   and
+   `import backend.`
+
+2. Convert them to local package imports.
+
+Examples:
+
+Change:
+
+```python
+from backend.routers import research, memory, health
+```
+
+To:
+
+```python
+from routers import research, memory, health
+```
+
+Change:
+
+```python
+from backend.services.memory import MemoryService
+```
+
+To:
+
+```python
+from services.memory import MemoryService
+```
+
+3. Ensure all imports remain valid and consistent across:
+
+* agents/
+* routers/
+* services/
+* utils/
+* models/
+* main.py
+
+4. Verify there are no remaining `backend.` import prefixes anywhere in the backend codebase.
+
+5. Ensure the project structure remains compatible with:
+
+* Render deployment
+* uvicorn main:app
+* Root Directory = backend
+
+6. After modifications:
+
+* run a quick import validation check if possible
+* ensure there are no circular import issues
+
+7. Finally:
+
+* stage the changes
+* create a git commit with message:
+  "Fix Render backend import paths"
+
+Do NOT modify frontend code.

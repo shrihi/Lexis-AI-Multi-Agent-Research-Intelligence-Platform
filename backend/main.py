@@ -19,7 +19,7 @@ app.add_middleware(
 )
 
 # Include routers
-from backend.routers import research, memory, health
+from routers import research, memory, health
 app.include_router(research.router, prefix="/api", tags=["research"])
 app.include_router(memory.router, prefix="/api", tags=["memory"])
 app.include_router(health.router, prefix="/api", tags=["health"])
