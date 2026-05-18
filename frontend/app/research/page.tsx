@@ -22,33 +22,55 @@ function ResearchConsole() {
         `${process.env.NEXT_PUBLIC_API_URL}/api/research/start`,
         {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ query: q, depth: d }),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            query: q,
+            depth: d,
+          }),
         }
       );
+
+      if (!resp.ok) {
+        throw new Error('Failed to start research');
+      }
+
       const data = await resp.json();
+
       setSessionId(data.session_id);
       setActiveSessionId(data.session_id);
     } catch (err) {
-      console.error('Failed to start research', err);
+      console.error('Failed to start research:', err);
     }
   };
 
+  // Auto-start research when redirected with query params
   useEffect(() => {
     if (autoStarted) return;
+
     const q = params?.get('q') || params?.get('query');
     const d = parseInt(params?.get('depth') || '3');
+
     if (q) {
       setAutoStarted(true);
+
+      // Set state first
       setQuery(q);
       setDepth(d);
-      startResearch(q, d);
+
+      // Delay API call slightly to allow hydration/state updates
+      setTimeout(() => {
+        startResearch(q, d);
+      }, 100);
     }
   }, [params, autoStarted]);
 
   const handleStart = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (!query.trim()) return;
+
     await startResearch(query, depth);
   };
 
@@ -62,22 +84,31 @@ function ResearchConsole() {
         {!sessionId && (
           <form onSubmit={handleStart} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-text mb-1" htmlFor="query">
+              <label
+                htmlFor="query"
+                className="block text-sm font-medium text-text mb-1"
+              >
                 Research Question
               </label>
+
               <input
                 id="query"
+                type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                className="w-full rounded-md border border-border bg-surface px-3 py-2 text-text focus:outline-none focus:border-accent-blue"
                 placeholder="Enter your research question..."
+                className="w-full rounded-md border border-border bg-surface px-3 py-2 text-text focus:outline-none focus:border-accent-blue"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-text mb-1" htmlFor="depth">
+              <label
+                htmlFor="depth"
+                className="block text-sm font-medium text-text mb-1"
+              >
                 Depth (1-5)
               </label>
+
               <input
                 id="depth"
                 type="number"
@@ -91,7 +122,7 @@ function ResearchConsole() {
 
             <button
               type="submit"
-              className="w-full bg-accent-green text-primary py-2 rounded hover:bg-accent-green/80"
+              className="w-full rounded-md bg-accent-green py-2 text-primary transition hover:bg-accent-green/80"
             >
               Start Research
             </button>
@@ -101,12 +132,17 @@ function ResearchConsole() {
         {sessionId && (
           <div className="mt-8">
             <AgentThoughtStream sessionId={sessionId} />
-            <CompletionWatcher sessionId={sessionId} onComplete={() => setIsComplete(true)} />
+
+            <CompletionWatcher
+              sessionId={sessionId}
+              onComplete={() => setIsComplete(true)}
+            />
+
             {isComplete && (
               <div className="mt-4 text-center">
                 <button
                   onClick={() => router.push(`/research/${sessionId}`)}
-                  className="px-6 py-2 bg-accent-blue text-primary rounded"
+                  className="rounded-md bg-accent-blue px-6 py-2 text-primary transition hover:bg-accent-blue/80"
                 >
                   View Report →
                 </button>
@@ -119,32 +155,65 @@ function ResearchConsole() {
   );
 }
 
-function CompletionWatcher({ sessionId, onComplete }: { sessionId: string; onComplete: () => void }) {
+function CompletionWatcher({
+  sessionId,
+  onComplete,
+}: {
+  sessionId: string;
+  onComplete: () => void;
+}) {
   useEffect(() => {
     let cancelled = false;
+
     const check = async () => {
       try {
-        const resp = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/research/report/${sessionId}`);
-        if (!resp.ok) return;
+        const resp = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/research/report/${sessionId}`
+        );
+
+        if (!resp.ok) {
+          setTimeout(check, 2000);
+          return;
+        }
+
         const data = await resp.json();
-        if ((data.status === 'complete' || data.status === 'error') && !cancelled) {
+
+        if (
+          (data.status === 'complete' || data.status === 'error') &&
+          !cancelled
+        ) {
           onComplete();
         } else if (!cancelled) {
           setTimeout(check, 2000);
         }
-      } catch {
-        if (!cancelled) setTimeout(check, 3000);
+      } catch (err) {
+        console.error('Polling error:', err);
+
+        if (!cancelled) {
+          setTimeout(check, 3000);
+        }
       }
     };
+
     check();
-    return () => { cancelled = true; };
+
+    return () => {
+      cancelled = true;
+    };
   }, [sessionId, onComplete]);
+
   return null;
 }
 
 export default function ResearchPage() {
   return (
-    <Suspense fallback={<div className="container-main py-12 text-text">Loading...</div>}>
+    <Suspense
+      fallback={
+        <div className="container-main py-12 text-text">
+          Loading...
+        </div>
+      }
+    >
       <ResearchConsole />
     </Suspense>
   );
