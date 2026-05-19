@@ -45,9 +45,9 @@ async def get_report(session_id: str):
     if session_id not in _session_store:
         raise HTTPException(status_code=404, detail="Session not found")
     # Retrieve from memory service
-    report = await _memory.get_research(session_id)
+    report = _orchestrator.get_report(session_id)
     if not report:
-        raise HTTPException(status_code(404), detail="Report not found")
+            raise HTTPException(status_code=404, detail="Report not found")
     return report
 
 @router.get("/research/history")
