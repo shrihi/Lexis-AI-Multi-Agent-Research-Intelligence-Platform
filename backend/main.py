@@ -9,13 +9,15 @@ load_dotenv()
 
 app = FastAPI()
 
-# CORS setup for development and Netlify
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=[
+import os
+origins = [
     "http://localhost:3000",
     "https://lexisaimultiagentresearchplatform.netlify.app",
-    ],  # Development and Netlify
+    os.getenv("FRONTEND_URL", ""),
+]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[o for o in origins if o],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
